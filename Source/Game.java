@@ -24,11 +24,16 @@ public class Game extends JPanel implements Runnable
     
     private Thread t;
     private Image background;
+    
     private ScreenManager screen;
     private static int screenWidth;
     private static int screenHeight;
-    private final static int mapWidth = 120000;
-    private final static int mapHeight = 120000;
+    private final static int mapWidth = 50000;
+    private final static int mapHeight = 50000;
+    
+    private Image[][] blocks;
+    private MapLoader ml;
+    
    
     public Game()
     {
@@ -39,6 +44,10 @@ public class Game extends JPanel implements Runnable
         screenWidth = screen.getCurrentDisplayMode().getWidth();
         screenHeight = screen.getCurrentDisplayMode().getHeight();
         
+        blocks = new Image[1000][1000];
+        ml = new MapLoader();
+        ml.readMap("Map", blocks);
+        
         try 
         {
             background = ImageIO.read(new File("Images\\underwater.png"));
@@ -47,6 +56,8 @@ public class Game extends JPanel implements Runnable
         {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
         
         danger = new ArrayList();
         nondanger = new ArrayList();
@@ -137,6 +148,21 @@ public class Game extends JPanel implements Runnable
        int y = offsetY * (screenHeight - background.getHeight(null)) / (screenHeight - mapHeight);
        ga.drawImage(background, x, y, null);
        
+       /*draws the map blocks*/
+       for(int i = 0; i<1000; i++)
+       {
+           for(int j = 0; j<1000; j++)
+           {
+               if(blocks[i][j] != null)
+               {
+                  if( Math.abs(p.getX()  - j*50) <= screenWidth && Math.abs( p.getY() - i*50) <= screenHeight)
+                  {
+                        ga.drawImage(blocks[i][j], j*50 + offsetX, i*50 + offsetY,null);
+                  }
+               }
+           }
+       }
+       
        for(int i=0; i<danger.size(); i++)
        {
            Fish s = (Fish) danger.get(i);
@@ -144,8 +170,7 @@ public class Game extends JPanel implements Runnable
             if( Math.abs(p.getX()  - s.getX()) <= screenWidth && Math.abs( p.getY() - s.getY() ) <= screenHeight)
             {
                 ga.drawImage(s.getImage(), s.getX() + offsetX, s.getY() + offsetY, this);
-            }
-          
+            }  
        }
        
        for(int i=0; i<nondanger.size(); i++)
